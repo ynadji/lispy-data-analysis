@@ -133,10 +133,10 @@
       (uiop:run-program (list "open" (namestring full-path))))
     full-path))
 
-(defun chart (results x-field y-field &key 
+(defun chart (results x-field y-field &key
                                         (path "/tmp/chart.html")
                                         title
-                                        (width 600) 
+                                        (width 600)
                                         (height 400)
                                         (mark "bar")
                                         x-sort
@@ -145,10 +145,10 @@
    RESULTS: output from db:q
    X-FIELD: column name for x-axis
    Y-FIELD: column name for y-axis
-   
+
    Example:
      (chart (db:q \"SELECT app, COUNT(*) as freq FROM apps GROUP BY app\")
-            \"app\" \"freq\" 
+            \"app\" \"freq\"
             :title \"App Frequency\"
             :x-sort \"-y\")"
   (let* ((data (duckdb-results->vega-data results))
@@ -164,3 +164,14 @@
                 :width width
                 :height height)))
     (save-chart spec path :title (or title "Chart") :open open)))
+
+(defparameter *example-spec*
+  (let* ((results (db:q "SELECT app, COUNT(*) AS freq
+              FROM (SELECT UNNEST(app) AS app FROM conn)
+              GROUP BY app ORDER BY freq DESC LIMIT 20"))
+         (data (duckdb-results->vega-data results))
+         (spec (make-vega-spec :data data :mark "bar"
+                               :encoding (make-encoding :x (list :field "app" :type "nominal" :sort "-y")
+                                                        :y (list :field "freq" :type "quantitative"))
+                               :title "app breakdown" :width 600 :height 400)))
+    (jzon:stringify spec)))
