@@ -36,10 +36,43 @@
                      ht))
      'vector)))
 
+(defun plist->hash-table (plist)
+  "Convert a plist to a hash table with string keys (lowercase).
+   Example: (:size 100 :filled t) -> {\"size\": 100, \"filled\": true}"
+  (let ((ht (make-hash-table :test 'equal)))
+    (loop for (k v) on plist by #'cddr
+          do (setf (gethash (string-downcase (symbol-name k)) ht) v))
+    ht))
+
+(defun make-mark (type &optional properties)
+  "Create a mark specification.
+   TYPE: mark type string (e.g., \"bar\", \"point\", \"line\")
+   PROPERTIES: optional plist of mark properties
+
+   If PROPERTIES is nil, returns just the type string.
+   Otherwise returns a hash table with type and properties.
+
+   Common properties by mark type:
+     All marks: :color :opacity :fill :stroke :stroke-width :tooltip
+     point:     :size :shape :filled
+     line:      :stroke-width :interpolate :point
+     area:      :line :opacity :interpolate
+     bar:       :corner-radius :corner-radius-end
+     text:      :font-size :font-weight :align :baseline :angle
+     circle/square: :size
+     rule:      :stroke-width
+     tick:      :thickness
+     arc:       :inner-radius :outer-radius :theta :theta2"
+  (if (null properties)
+      type
+      (let ((ht (plist->hash-table properties)))
+        (setf (gethash "type" ht) type)
+        ht)))
+
 (defun make-vega-spec (&key data mark encoding title width height)
   "Create a Vega-Lite specification as a hash table.
    DATA: vector of hash tables (from duckdb-results->vega-data)
-   MARK: chart type (e.g., \"bar\", \"line\", \"point\")
+   MARK: mark type string OR hash table from make-mark
    ENCODING: hash table with x, y, color, etc. encodings
    TITLE: optional chart title
    WIDTH/HEIGHT: optional dimensions"
@@ -72,12 +105,13 @@
       (when tooltip (setf (gethash "tooltip" enc) (plist->ht tooltip))))
     enc))
 
-(defun make-bar-chart (results x-field y-field &key title (width 600) (height 400) x-sort)
+(defun make-bar-chart (results x-field y-field &key title (width 600) (height 400) x-sort mark-properties)
   "Convenience function to create a bar chart from DuckDB results.
    RESULTS: output from db:q
    X-FIELD: column name for x-axis (string)
    Y-FIELD: column name for y-axis (string)
-   X-SORT: optional sort order, e.g., \"-y\" to sort by y descending"
+   X-SORT: optional sort order, e.g., \"-y\" to sort by y descending
+   MARK-PROPERTIES: optional plist of bar mark properties (e.g., :corner-radius 5)"
   (let* ((data (duckdb-results->vega-data results))
          (x-encoding (list :field x-field :type "nominal"))
          (y-encoding (list :field y-field :type "quantitative")))
@@ -85,7 +119,7 @@
       (setf x-encoding (append x-encoding (list :sort x-sort))))
     (make-vega-spec
      :data data
-     :mark "bar"
+     :mark (make-mark "bar" mark-properties)
      :encoding (make-encoding :x x-encoding :y y-encoding)
      :title title
      :width width
@@ -139,26 +173,46 @@
                                         (width 600)
                                         (height 400)
                                         (mark "bar")
+                                        mark-properties
                                         x-sort
                                         (open t))
   "One-liner to create and display a chart from DuckDB query results.
    RESULTS: output from db:q
    X-FIELD: column name for x-axis
    Y-FIELD: column name for y-axis
+   MARK: mark type string (default \"bar\")
+   MARK-PROPERTIES: optional plist of mark properties
 
-   Example:
+   Examples:
+     ;; Simple bar chart
      (chart (db:q \"SELECT app, COUNT(*) as freq FROM apps GROUP BY app\")
             \"app\" \"freq\"
             :title \"App Frequency\"
-            :x-sort \"-y\")"
+            :x-sort \"-y\")
+
+     ;; Scatter plot with custom point size and shape
+     (chart results \"x\" \"y\"
+            :mark \"point\"
+            :mark-properties '(:size 100 :filled t :opacity 0.7))
+
+     ;; Line chart with smooth interpolation
+     (chart results \"date\" \"value\"
+            :mark \"line\"
+            :mark-properties '(:stroke-width 3 :interpolate \"monotone\"))
+
+     ;; Area chart with transparency
+     (chart results \"date\" \"value\"
+            :mark \"area\"
+            :mark-properties '(:opacity 0.5 :line t))"
   (let* ((data (duckdb-results->vega-data results))
          (x-enc (if x-sort
                     (list :field x-field :type "nominal" :sort x-sort)
                     (list :field x-field :type "nominal")))
          (y-enc (list :field y-field :type "quantitative"))
+         (mark-spec (make-mark mark mark-properties))
          (spec (make-vega-spec
                 :data data
-                :mark mark
+                :mark mark-spec
                 :encoding (make-encoding :x x-enc :y y-enc)
                 :title title
                 :width width
