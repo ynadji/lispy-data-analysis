@@ -45,7 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ros install swank bordeaux-threads clingon
+          ros install cffi swank bordeaux-threads clingon
 
       - name: Build binary
         run: |
