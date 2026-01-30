@@ -27,7 +27,7 @@ jobs:
       - name: Checkout cl-duckdb
         uses: actions/checkout@v4
         with:
-          repository: duckdb/cl-duckdb
+          repository: ak-coram/cl-duckdb
           path: ~/common-lisp/cl-duckdb
 
       - name: Setup Lisp
