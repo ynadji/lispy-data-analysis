@@ -151,7 +151,6 @@
     (repl-command)
     (save-command))
    :handler (lambda (cmd)
-              (declare (ignore cmd))
               (clingon:print-usage-and-exit cmd t))))
 
 ;;; ---------------------------------------------------------------------------
