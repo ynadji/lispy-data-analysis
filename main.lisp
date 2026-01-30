@@ -13,8 +13,8 @@
 
 (defun init-db ()
   (db:initialize-default-connection :allow-unsigned-extensions t)
-  (db:run "LOAD '/Users/yacin/code/zeek-duckdb/build/release/extension/zeek/zeek.duckdb_extension'")
-  (db:run "CREATE TABLE conn AS SELECT * FROM read_zeek('data/2026-01-16/conn_2*')"))
+  (db:run "LOAD '~/code/zeek-duckdb/build/release/extension/zeek/zeek.duckdb_extension'")
+  #+or(db:run "CREATE TABLE conn AS SELECT * FROM read_zeek('data/2026-01-16/conn_2*')"))
 
 ;;; ---------------------------------------------------------------------------
 ;;; Vega-Lite Visualization Utilities
@@ -219,7 +219,7 @@
                 :height height)))
     (save-chart spec path :title (or title "Chart") :open open)))
 
-(defparameter *example-spec*
+#+or(defparameter *example-spec*
   (let* ((results (db:q "SELECT app, COUNT(*) AS freq
               FROM (SELECT UNNEST(app) AS app FROM conn)
               GROUP BY app ORDER BY freq DESC LIMIT 20"))
