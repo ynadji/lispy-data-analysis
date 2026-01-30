@@ -1,0 +1,25 @@
+# Build artifacts
+bin/
+*.fasl
+
+# Data files
+data/
+
+# Claude Code
+.claude/
+
+# OS-specific
+.DS_Store
+*.swp
+*~
+
+# Lisp-specific
+*.dfsl
+*.pfsl
+*.lib
+*.ppcf
+*.x86f
+*.lx32fsl
+*.lx64fsl
+*.dx32fsl
+*.dx64fsl

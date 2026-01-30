@@ -1,0 +1,53 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, 'topic/yacin/swank' ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ created ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Lisp
+        uses: 40ants/setup-lisp@v4
+        with:
+          asdf-system: lispy-data-analysis
+          qlfile-template: |
+            github duckdb cl-duckdb main
+
+      - name: Install dependencies
+        run: |
+          ros install swank bordeaux-threads clingon
+
+      - name: Build binary
+        run: |
+          ros run --eval "(progn (asdf:make :lispy-data-analysis) (quit))"
+
+      - name: Test binary
+        run: |
+          ./bin/lda --version
+          ./bin/lda --help
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lda-linux-amd64
+          path: bin/lda
+
+      - name: Upload release asset
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./bin/lda
+          asset_name: lda-linux-amd64
+          asset_content_type: application/octet-stream
