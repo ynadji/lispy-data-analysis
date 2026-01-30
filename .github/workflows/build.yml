@@ -28,12 +28,23 @@ jobs:
 
       - name: Build binary
         run: |
-          ros run --eval "(progn (asdf:make :lispy-data-analysis) (quit))"
+          ros run --eval "(push (uiop:getcwd) asdf:*central-registry*)" \
+                  --eval "(asdf:load-system :lispy-data-analysis)" \
+                  --eval "(asdf:make :lispy-data-analysis)" \
+                  --eval "(quit)"
 
       - name: Test binary
         run: |
+          chmod +x ./bin/lda
           ./bin/lda --version
           ./bin/lda --help
+          ./bin/lda server --help
+          ./bin/lda repl --help
+          ./bin/lda save --help
+        # Note: We don't test actual server/repl commands here because
+        # the zeek-duckdb extension is not available in CI. The binary
+        # will fail gracefully with a clear error message when the
+        # extension is missing at runtime.
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
