@@ -11,6 +11,9 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    env:
+      LISP: sbcl-bin
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
