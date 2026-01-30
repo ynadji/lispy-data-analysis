@@ -24,19 +24,20 @@ jobs:
           sudo ldconfig
           rm libduckdb-linux-amd64.zip duckdb.h duckdb.hpp
 
-      - name: Clone cl-duckdb
-        run: |
-          mkdir -p ~/common-lisp
-          git clone https://github.com/duckdb/cl-duckdb.git ~/common-lisp/cl-duckdb
-
-      - name: Install dependencies
-        run: |
-          ros install swank bordeaux-threads clingon
+      - name: Checkout cl-duckdb
+        uses: actions/checkout@v4
+        with:
+          repository: duckdb/cl-duckdb
+          path: ~/common-lisp/cl-duckdb
 
       - name: Setup Lisp
         uses: 40ants/setup-lisp@v4
         with:
           asdf-system: lispy-data-analysis
+
+      - name: Install dependencies
+        run: |
+          ros install swank bordeaux-threads clingon
 
       - name: Build binary
         run: |
