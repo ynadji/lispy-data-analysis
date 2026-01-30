@@ -6,7 +6,7 @@ all: build
 # Build the binary using SBCL
 build:
 	@echo "Building lda binary..."
-	sbcl --non-interactive \
+	ros run -- --non-interactive \
 		--eval "(require :asdf)" \
 		--eval "(push (uiop:getcwd) asdf:*central-registry*)" \
 		--eval "(asdf:load-system :lispy-data-analysis)" \

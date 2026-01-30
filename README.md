@@ -176,7 +176,7 @@ MIT License. See LICENSE file for details.
 
 ## Author
 
-Yacin Nadji <yacin@gatech.edu>
+Yacin Nadji <ynadji@gmail.com>
 
 ## Contributing
 

@@ -143,7 +143,7 @@
    :name "lda"
    :description "Lispy Data Analysis - Remote REPL tool for data analysis with DuckDB and Vega-Lite"
    :version "0.1.0"
-   :authors '("Yacin Nadji <yacin@gatech.edu>")
+   :authors '("Yacin Nadji <ynadji@gmail.com>")
    :license "MIT"
    :sub-commands
    (list
