@@ -20,6 +20,15 @@ jobs:
         with:
           asdf-system: lispy-data-analysis
 
+      - name: Install DuckDB v1.4.3
+        run: |
+          wget https://github.com/duckdb/duckdb/releases/download/v1.4.3/libduckdb-linux-amd64.zip
+          unzip libduckdb-linux-amd64.zip
+          sudo mkdir -p /usr/local/lib
+          sudo mv libduckdb.so /usr/local/lib/
+          sudo ldconfig
+          rm libduckdb-linux-amd64.zip duckdb.h duckdb.hpp
+
       - name: Clone cl-duckdb
         run: |
           mkdir -p ~/common-lisp
