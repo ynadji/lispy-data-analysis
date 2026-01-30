@@ -45,7 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ros install cffi swank bordeaux-threads clingon cl-ascii-table cl-spark cl-ppcre let-plus local-time local-time-duration periods frugal-uuid float-features
+          ros install cffi swank bordeaux-threads clingon cl-ascii-table cl-spark cl-ppcre let-plus local-time local-time-duration periods frugal-uuid float-features com.inuoe.jzon
 
       - name: Build binary
         run: |
