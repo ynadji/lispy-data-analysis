@@ -43,9 +43,9 @@ jobs:
         with:
           asdf-system: lispy-data-analysis
 
-      - name: Install dependencies
+      - name: Install dependencies via Quicklisp
         run: |
-          ros install cffi swank bordeaux-threads clingon cl-ascii-table cl-spark cl-ppcre let-plus local-time local-time-duration periods frugal-uuid float-features "com.inuoe.jzon"
+          ros run --eval '(ql:quickload (list :cffi :swank :bordeaux-threads :clingon :alexandria :com.inuoe.jzon :cl-ascii-table :cl-spark :local-time-duration :periods :frugal-uuid))' --quit
 
       - name: Build binary
         run: |
